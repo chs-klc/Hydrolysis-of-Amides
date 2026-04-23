@@ -483,8 +483,6 @@
     <!-- Application Logic -->
     <script>
         // --- 1. Tab Navigation Logic ---
-        let threeJsInitialized = false;
-
         function openTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active-tab', 'ring-2', 'ring-chem-500', 'bg-chem-50');
@@ -503,23 +501,13 @@
             }
 
             if(tabId === 'virtuallab') {
-                if(!threeJsInitialized) {
-                    // Lazy-init: tab is now visible so container has real dimensions
-                    threeJsInitialized = true;
-                    // Use setTimeout to ensure DOM is fully rendered and THREE is loaded
-                    setTimeout(() => {
-                        if(typeof THREE !== 'undefined') {
-                            initThreeJS();
-                        } else {
-                            console.error('THREE.js not loaded yet, retrying...');
-                            setTimeout(() => initThreeJS(), 100);
-                        }
-                    }, 50);
-                } else if(camera && renderer) {
+                if(camera && renderer) {
                     const container = document.getElementById('canvas-container');
-                    camera.aspect = container.clientWidth / container.clientHeight;
+                    let w = container.clientWidth || 800;
+                    let h = container.clientHeight || 400;
+                    camera.aspect = w / h;
                     camera.updateProjectionMatrix();
-                    renderer.setSize(container.clientWidth, container.clientHeight);
+                    renderer.setSize(w, h);
                 }
             }
         }
@@ -657,24 +645,26 @@
         const MAT_BOND = new THREE.MeshPhongMaterial({ color: 0xcccccc });
 
         function initThreeJS() {
-            const container = document.getElementById('canvas-container');
-            
-            // Ensure container has valid dimensions
-            if(!container || container.clientWidth === 0 || container.clientHeight === 0) {
-                console.error('Container not ready, dimensions:', container?.clientWidth, container?.clientHeight);
+            if(typeof THREE === 'undefined') {
+                console.error('THREE.js not loaded yet, retrying in 100ms...');
+                setTimeout(initThreeJS, 100);
                 return;
             }
+
+            const container = document.getElementById('canvas-container');
+            if(!container) return;
             
-            console.log('Initializing Three.js with dimensions:', container.clientWidth, 'x', container.clientHeight);
+            let w = container.clientWidth || 800;
+            let h = container.clientHeight || 400;
             
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x1e293b);
 
-            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+            camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
             camera.position.z = 7;
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setSize(w, h);
             container.appendChild(renderer.domElement);
 
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -692,9 +682,11 @@
 
             window.addEventListener('resize', () => {
                 if(document.getElementById('virtuallab').classList.contains('active')) {
-                    camera.aspect = container.clientWidth / container.clientHeight;
+                    let rw = container.clientWidth || 800;
+                    let rh = container.clientHeight || 400;
+                    camera.aspect = rw / rh;
                     camera.updateProjectionMatrix();
-                    renderer.setSize(container.clientWidth, container.clientHeight);
+                    renderer.setSize(rw, rh);
                 }
             });
 
@@ -1003,7 +995,7 @@
         }
 
         window.onload = () => {
-            // Three.js is initialized lazily when the 3D Virtual Lab tab is first opened
+            initThreeJS();
         };
 
     </script>
