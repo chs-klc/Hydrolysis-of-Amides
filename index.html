@@ -490,7 +490,15 @@
                 if(!threeJsInitialized) {
                     // Lazy-init: tab is now visible so container has real dimensions
                     threeJsInitialized = true;
-                    initThreeJS();
+                    // Use setTimeout to ensure DOM is fully rendered and THREE is loaded
+                    setTimeout(() => {
+                        if(typeof THREE !== 'undefined') {
+                            initThreeJS();
+                        } else {
+                            console.error('THREE.js not loaded yet, retrying...');
+                            setTimeout(() => initThreeJS(), 100);
+                        }
+                    }, 50);
                 } else if(camera && renderer) {
                     const container = document.getElementById('canvas-container');
                     camera.aspect = container.clientWidth / container.clientHeight;
@@ -634,6 +642,15 @@
 
         function initThreeJS() {
             const container = document.getElementById('canvas-container');
+            
+            // Ensure container has valid dimensions
+            if(!container || container.clientWidth === 0 || container.clientHeight === 0) {
+                console.error('Container not ready, dimensions:', container?.clientWidth, container?.clientHeight);
+                return;
+            }
+            
+            console.log('Initializing Three.js with dimensions:', container.clientWidth, 'x', container.clientHeight);
+            
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x1e293b);
 
