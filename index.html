@@ -482,6 +482,8 @@
 
     <!-- Application Logic -->
     <script>
+        let threeJsInitialized = false;
+
         // --- 1. Tab Navigation Logic ---
         function openTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -501,14 +503,20 @@
             }
 
             if(tabId === 'virtuallab') {
-                if(camera && renderer) {
+                setTimeout(() => {
                     const container = document.getElementById('canvas-container');
                     let w = container.clientWidth || 800;
                     let h = container.clientHeight || 400;
-                    camera.aspect = w / h;
-                    camera.updateProjectionMatrix();
-                    renderer.setSize(w, h);
-                }
+
+                    if (!threeJsInitialized) {
+                        threeJsInitialized = true;
+                        initThreeJS();
+                    } else if(camera && renderer) {
+                        camera.aspect = w / h;
+                        camera.updateProjectionMatrix();
+                        renderer.setSize(w, h);
+                    }
+                }, 100);
             }
         }
 
@@ -995,7 +1003,7 @@
         }
 
         window.onload = () => {
-            initThreeJS();
+            // Wait for user to open the tab before initializing 3D to ensure valid DOM dimensions
         };
 
     </script>
