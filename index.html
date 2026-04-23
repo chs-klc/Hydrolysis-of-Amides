@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydrolysis of Amides | HKDSE Chemistry</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- MathJax for Chemical Equations -->
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            svg: { fontCache: 'global' },
+            options: { enableAssistiveMml: false, menuOptions: { settings: { assistiveMml: false } } },
+            startup: { typeset: true }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        chem: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            900: '#134e4a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Flowchart Styles */
+        .pathway-box { @apply p-4 rounded-xl border-2 border-chem-500 bg-white shadow-md relative z-10 transition-transform hover:scale-105 duration-200; }
+        .arrow-down { width: 2px; height: 30px; @apply bg-chem-500 mx-auto my-2 relative; }
+        .arrow-down::after { content: ''; position: absolute; bottom: -5px; left: -4px; border-width: 5px 5px 0; @apply border-t-chem-500 border-l-transparent border-r-transparent; }
+        .arrow-right { height: 2px; width: 30px; @apply bg-chem-500 my-auto mx-2 relative; }
+        .arrow-right::after { content: ''; position: absolute; right: -5px; top: -4px; border-width: 5px 0 5px 5px; @apply border-l-chem-500 border-t-transparent border-b-transparent; }
+        
+        #canvas-container { width: 100%; height: 400px; border-radius: 0.5rem; overflow: hidden; position: relative;}
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased selection:bg-chem-100 selection:text-chem-900">
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-3 tracking-tight">
+                <i class="fa-solid fa-flask text-chem-500 mr-2"></i> Hydrolysis of Amides
+            </h1>
+            <p class="text-lg text-gray-600 font-medium">HKDSE Chemistry Topic 11: Chemistry of Carbon Compounds</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="flex flex-wrap justify-center gap-2 mb-8 bg-white p-2 rounded-2xl shadow-sm border border-gray-100">
+            <button onclick="openTab('concepts')" class="tab-btn px-5 py-2.5 rounded-xl font-semibold text-gray-600 hover:bg-chem-50 hover:text-chem-600 transition-all active-tab" data-target="concepts"><i class="fa-solid fa-book-open mr-2"></i>Concepts</button>
+            <button onclick="openTab('virtuallab')" class="tab-btn px-5 py-2.5 rounded-xl font-semibold text-gray-600 hover:bg-chem-50 hover:text-chem-600 transition-all" data-target="virtuallab"><i class="fa-solid fa-cubes mr-2"></i>3D Virtual Lab</button>
+            <button onclick="openTab('flowchart')" class="tab-btn px-5 py-2.5 rounded-xl font-semibold text-gray-600 hover:bg-chem-50 hover:text-chem-600 transition-all" data-target="flowchart"><i class="fa-solid fa-sitemap mr-2"></i>Process Flowchart</button>
+            <button onclick="openTab('exam')" class="tab-btn px-5 py-2.5 rounded-xl font-semibold text-gray-600 hover:bg-chem-50 hover:text-chem-600 transition-all" data-target="exam"><i class="fa-solid fa-file-pen mr-2"></i>Exam Challenge</button>
+            <button onclick="openTab('misconceptions')" class="tab-btn px-5 py-2.5 rounded-xl font-semibold text-gray-600 hover:bg-chem-50 hover:text-chem-600 transition-all" data-target="misconceptions"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Misconceptions</button>
+            <button onclick="openTab('summary')" class="tab-btn px-5 py-2.5 rounded-xl font-semibold text-gray-600 hover:bg-chem-50 hover:text-chem-600 transition-all" data-target="summary"><i class="fa-solid fa-list-check mr-2"></i>Summary</button>
+            <button onclick="openTab('quiz')" class="tab-btn px-5 py-2.5 rounded-xl font-semibold text-white bg-chem-500 hover:bg-chem-600 shadow-md transition-all" data-target="quiz"><i class="fa-solid fa-check-double mr-2"></i>Quiz</button>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="bg-white rounded-3xl shadow-lg border border-gray-100 p-6 md:p-10 min-h-[500px]">
+
+            <!-- 1. Concepts Tab -->
+            <section id="concepts" class="tab-content active">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-chem-100 pb-2">Reaction Principles</h2>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold text-chem-600 mb-3"><i class="fa-solid fa-info-circle mr-2"></i>The Amide Functional Group</h3>
+                        <p class="text-gray-700 leading-relaxed mb-4">
+                            Amides contain the <strong>-CONH<sub>2</sub></strong> functional group. The Carbon-Nitrogen single bond is surprisingly strong due to partial double-bond character (resonance with the carbonyl oxygen). Therefore, hydrolysis of amides is slow and requires <strong>prolonged heating under reflux</strong> with a catalyst (dilute acid or alkali).
+                        </p>
+                        
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6">
+                            <h4 class="font-bold text-blue-800 mb-2">General Structure:</h4>
+                            <div class="text-center text-lg">
+                                \( R-CO-NH_2 \)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-red-50 p-5 rounded-xl border border-red-100">
+                            <h3 class="text-xl font-bold text-red-700 mb-2"><i class="fa-solid fa-vial mr-2"></i>1. Acidic Hydrolysis</h3>
+                            <p class="text-sm text-gray-700 mb-3">Heating with dilute acid (e.g., \( H_2SO_4(aq) \) or \( HCl(aq) \)). The amide is converted to a <strong>carboxylic acid</strong> and an <strong>ammonium salt</strong>.</p>
+                            <div class="bg-white p-3 rounded-lg text-center overflow-x-auto">
+                                \( CH_3CONH_2 + H_2O + H^+ \xrightarrow{\Delta} CH_3COOH + NH_4^+ \)
+                            </div>
+                            <p class="text-xs text-red-600 mt-2 font-semibold">Note: Ammonia is basic, so it reacts with the acid to form \( NH_4^+ \).</p>
+                        </div>
+
+                        <div class="bg-purple-50 p-5 rounded-xl border border-purple-100">
+                            <h3 class="text-xl font-bold text-purple-700 mb-2"><i class="fa-solid fa-vial-circle-check mr-2"></i>2. Alkaline Hydrolysis</h3>
+                            <p class="text-sm text-gray-700 mb-3">Heating with dilute alkali (e.g., \( NaOH(aq) \)). The amide is converted to a <strong>carboxylate salt</strong> and <strong>ammonia gas</strong>.</p>
+                            <div class="bg-white p-3 rounded-lg text-center overflow-x-auto">
+                                \( CH_3CONH_2 + OH^- \xrightarrow{\Delta} CH_3COO^- + NH_3(g) \)
+                            </div>
+                            <p class="text-xs text-purple-600 mt-2 font-semibold">Note: The carboxylic acid formed initially is neutralized by the alkali to form a carboxylate ion.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 3D Virtual Lab Tab -->
+            <section id="virtuallab" class="tab-content">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4 border-b-2 border-chem-100 pb-2">Molecular View: Bond Cleavage</h2>
+                <p class="text-gray-600 mb-4">Observe the step-by-step cleavage of the Carbon-Nitrogen bond in Ethanamide (\( CH_3CONH_2 \)) and the subsequent acid-base reaction dictated by the chosen medium.</p>
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-3 mb-4 text-sm">
+                    <p class="text-blue-800"><strong>Geometry Note:</strong> The 3D model shows accurate VSEPR geometries: trigonal pyramidal NH₃ (~107°), tetrahedral NH₄⁺ (~109.5°), and bent geometry around oxygen atoms.</p>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-6">
+                    <!-- 3D Canvas -->
+                    <div class="w-full md:w-2/3 bg-slate-800 rounded-xl relative shadow-inner overflow-hidden border-2 border-gray-700" id="canvas-wrapper">
+                        <!-- Canvas injected here -->
+                        <div id="canvas-container"></div>
+                        <!-- Legend overlay -->
+                        <div class="absolute top-4 left-4 bg-black/60 p-2 rounded text-xs text-white backdrop-blur-sm">
+                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-gray-400"></span> Carbon</div>
+                            <div class="flex items-center gap-2 mt-1"><span class="w-3 h-3 rounded-full bg-red-500"></span> Oxygen</div>
+                            <div class="flex items-center gap-2 mt-1"><span class="w-3 h-3 rounded-full bg-blue-500"></span> Nitrogen</div>
+                            <div class="flex items-center gap-2 mt-1"><span class="w-3 h-3 rounded-full bg-white"></span> Hydrogen</div>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="w-full md:w-1/3 flex flex-col justify-center space-y-4">
+                        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                            <h3 class="font-bold text-gray-800 mb-4 text-center">Simulation Controls</h3>
+                            
+                            <button onclick="startSimulation('acid')" class="w-full mb-3 py-3 px-4 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors flex justify-between items-center group">
+                                Start Acidic Pathway
+                                <i class="fa-solid fa-play group-hover:scale-110 transition-transform"></i>
+                            </button>
+                            
+                            <button onclick="startSimulation('alkali')" class="w-full mb-3 py-3 px-4 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-semibold transition-colors flex justify-between items-center group">
+                                Start Alkaline Pathway
+                                <i class="fa-solid fa-play group-hover:scale-110 transition-transform"></i>
+                            </button>
+
+                            <button id="next-step-btn" onclick="proceedToStep2()" class="hidden w-full mb-3 py-3 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors flex justify-between items-center group shadow-md border border-blue-600 animate-pulse">
+                                Proceed to Step 2
+                                <i class="fa-solid fa-forward-step group-hover:translate-x-1 transition-transform"></i>
+                            </button>
+
+                            <hr class="my-4 border-gray-200">
+                            
+                            <button onclick="resetSimulation()" class="w-full py-2 px-4 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-semibold transition-colors flex justify-center items-center gap-2">
+                                <i class="fa-solid fa-rotate-right"></i> Reset Molecule
+                            </button>
+                        </div>
+                        
+                        <div id="sim-feedback" class="bg-chem-50 p-4 rounded-xl text-sm text-chem-900 border border-chem-100 hidden">
+                            <!-- Dynamic feedback text -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Process Flowchart Tab -->
+            <section id="flowchart" class="tab-content">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-chem-100 pb-2">Reaction Pathways</h2>
+                <p class="text-center text-gray-600 mb-8">Follow the dual pathways for amide hydrolysis based on the reagent chosen.</p>
+
+                <div class="flex flex-col items-center max-w-4xl mx-auto">
+                    <!-- Starting Point -->
+                    <div class="pathway-box text-center bg-gray-100 border-gray-400 w-64">
+                        <h3 class="font-bold text-gray-800">Starting Material</h3>
+                        <p class="text-lg font-semibold text-chem-600">Amide</p>
+                        <p class="text-sm text-gray-500">e.g., \( CH_3CONH_2 \)</p>
+                    </div>
+
+                    <!-- Split Arrow -->
+                    <div class="flex justify-center w-full mt-4">
+                        <div class="w-1/2 border-t-2 border-l-2 border-chem-500 h-8 rounded-tl-xl mt-4 relative">
+                            <div class="absolute bottom-[-10px] left-[-6px] border-solid border-t-[10px] border-t-chem-500 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent"></div>
+                        </div>
+                        <div class="w-1/2 border-t-2 border-r-2 border-chem-500 h-8 rounded-tr-xl mt-4 relative">
+                            <div class="absolute bottom-[-10px] right-[-6px] border-solid border-t-[10px] border-t-chem-500 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent"></div>
+                        </div>
+                    </div>
+
+                    <!-- Branches -->
+                    <div class="flex w-full justify-between items-start mt-4 px-4 gap-4">
+                        
+                        <!-- Left Branch: Acidic -->
+                        <div class="flex flex-col items-center w-1/2">
+                            <div class="bg-red-50 text-red-800 px-4 py-2 rounded-full font-bold text-sm mb-4 border border-red-200">
+                                Acidic Conditions
+                            </div>
+                            <div class="pathway-box text-center w-full border-red-400">
+                                <h4 class="font-bold mb-2">Reagents & Conditions</h4>
+                                <ul class="text-sm text-left list-disc list-inside text-gray-700">
+                                    <li>Dilute \( H_2SO_4 \) or \( HCl \)</li>
+                                    <li>Heat under reflux</li>
+                                </ul>
+                            </div>
+                            <div class="arrow-down !bg-red-400 before:border-t-red-400"></div>
+                            <div class="pathway-box text-center w-full border-red-600 bg-red-100">
+                                <h4 class="font-bold text-red-800">Products</h4>
+                                <p class="font-semibold text-lg">Carboxylic Acid</p>
+                                <p class="text-sm">+ Ammonium Salt (\( NH_4^+ \))</p>
+                                <div class="mt-2 text-xs bg-white p-2 rounded text-gray-600">No gas is evolved initially.</div>
+                            </div>
+                        </div>
+
+                        <!-- Right Branch: Alkaline -->
+                        <div class="flex flex-col items-center w-1/2">
+                            <div class="bg-purple-50 text-purple-800 px-4 py-2 rounded-full font-bold text-sm mb-4 border border-purple-200">
+                                Alkaline Conditions
+                            </div>
+                            <div class="pathway-box text-center w-full border-purple-400">
+                                <h4 class="font-bold mb-2">Reagents & Conditions</h4>
+                                <ul class="text-sm text-left list-disc list-inside text-gray-700">
+                                    <li>Dilute \( NaOH \)</li>
+                                    <li>Heat under reflux</li>
+                                </ul>
+                            </div>
+                            <div class="arrow-down !bg-purple-400 before:border-t-purple-400"></div>
+                            <div class="pathway-box text-center w-full border-purple-600 bg-purple-100">
+                                <h4 class="font-bold text-purple-800">Products</h4>
+                                <p class="font-semibold text-lg">Carboxylate Salt</p>
+                                <p class="text-sm">+ Ammonia Gas (\( NH_3 \))</p>
+                                <div class="mt-2 text-xs bg-white p-2 rounded text-gray-600"><i class="fa-solid fa-triangle-exclamation text-amber-500"></i> Pungent gas turns moist red litmus blue.</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Exam Challenge Tab -->
+            <section id="exam" class="tab-content">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-chem-100 pb-2">Exam Scenario Challenge</h2>
+                
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-5 rounded-r-xl shadow-sm mb-8">
+                    <h3 class="font-bold text-lg text-yellow-800 mb-2">Scenario Analysis</h3>
+                    <p class="text-gray-700 mb-4">
+                        An unknown white solid, <strong>Compound X</strong> (\( C_3H_7NO \)), was heated with dilute sodium hydroxide solution under reflux. 
+                        A colorless gas <strong>Y</strong> was evolved, which possessed a pungent smell and turned moist red litmus paper blue. 
+                        The remaining solution contained an organic sodium salt <strong>Z</strong>.
+                    </p>
+                    
+                    <div class="space-y-4">
+                        <!-- Q1 -->
+                        <div class="bg-white p-4 rounded-lg border border-gray-200">
+                            <p class="font-semibold text-gray-800 mb-2">a) Identify the functional group present in Compound X.</p>
+                            <button onclick="toggleAnswer('ans1')" class="text-sm text-chem-600 hover:text-chem-800 font-bold"><i class="fa-solid fa-eye mr-1"></i> Reveal Answer</button>
+                            <div id="ans1" class="hidden mt-3 p-3 bg-green-50 text-green-800 rounded border border-green-200 text-sm">
+                                Amide group (-CONH₂). The evolution of alkaline gas Y upon heating with NaOH is the characteristic test.
+                            </div>
+                        </div>
+
+                        <!-- Q2 -->
+                        <div class="bg-white p-4 rounded-lg border border-gray-200">
+                            <p class="font-semibold text-gray-800 mb-2">b) Give the systematic name of gas Y and draw the structural formula of Compound X.</p>
+                            <button onclick="toggleAnswer('ans2')" class="text-sm text-chem-600 hover:text-chem-800 font-bold"><i class="fa-solid fa-eye mr-1"></i> Reveal Answer</button>
+                            <div id="ans2" class="hidden mt-3 p-3 bg-green-50 text-green-800 rounded border border-green-200 text-sm">
+                                <p>Gas Y: <strong>Ammonia</strong> (\( NH_3 \)).</p>
+                                <p class="mt-2">Compound X (\( C_3H_7NO \)) is <strong>Propanamide</strong>.</p>
+                                <p class="text-center mt-2 font-mono bg-white p-2 rounded inline-block">CH₃-CH₂-CO-NH₂</p>
+                            </div>
+                        </div>
+
+                        <!-- Q3 -->
+                        <div class="bg-white p-4 rounded-lg border border-gray-200">
+                            <p class="font-semibold text-gray-800 mb-2">c) Write the chemical equation for this reaction.</p>
+                            <button onclick="toggleAnswer('ans3')" class="text-sm text-chem-600 hover:text-chem-800 font-bold"><i class="fa-solid fa-eye mr-1"></i> Reveal Answer</button>
+                            <div id="ans3" class="hidden mt-3 p-3 bg-green-50 text-green-800 rounded border border-green-200 text-sm overflow-x-auto text-center">
+                                \( CH_3CH_2CONH_2 + NaOH \xrightarrow{\Delta} CH_3CH_2COONa + NH_3(g) \)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Misconceptions Tab -->
+            <section id="misconceptions" class="tab-content">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-chem-100 pb-2">Common Pitfalls</h2>
+                
+                <div class="space-y-6">
+                    <!-- Misconception 1 -->
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="md:w-1/2 bg-red-50 p-5 rounded-xl border border-red-200">
+                            <h3 class="text-red-700 font-bold flex items-center mb-2">
+                                <i class="fa-solid fa-xmark text-xl mr-2"></i> Student Error
+                            </h3>
+                            <p class="text-gray-700">"Acidic hydrolysis of an amide releases ammonia gas (\( NH_3 \))."</p>
+                        </div>
+                        <div class="md:w-1/2 bg-green-50 p-5 rounded-xl border border-green-200 relative">
+                            <div class="hidden md:block absolute left-[-1.5rem] top-1/2 transform -translate-y-1/2 text-3xl text-gray-300">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                            <h3 class="text-green-700 font-bold flex items-center mb-2">
+                                <i class="fa-solid fa-check text-xl mr-2"></i> Correct Concept
+                            </h3>
+                            <p class="text-gray-700">Ammonia is a <strong>base</strong>. In acidic conditions (e.g., presence of \( H^+ \)), it immediately reacts to form the <strong>ammonium ion (\( NH_4^+ \))</strong>. No gas is observed escaping the reaction mixture.</p>
+                        </div>
+                    </div>
+
+                    <!-- Misconception 2 -->
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="md:w-1/2 bg-red-50 p-5 rounded-xl border border-red-200">
+                            <h3 class="text-red-700 font-bold flex items-center mb-2">
+                                <i class="fa-solid fa-xmark text-xl mr-2"></i> Student Error
+                            </h3>
+                            <p class="text-gray-700">"Alkaline hydrolysis produces a carboxylic acid."</p>
+                        </div>
+                        <div class="md:w-1/2 bg-green-50 p-5 rounded-xl border border-green-200 relative">
+                            <div class="hidden md:block absolute left-[-1.5rem] top-1/2 transform -translate-y-1/2 text-3xl text-gray-300">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                            <h3 class="text-green-700 font-bold flex items-center mb-2">
+                                <i class="fa-solid fa-check text-xl mr-2"></i> Correct Concept
+                            </h3>
+                            <p class="text-gray-700">Carboxylic acids are acidic. In the presence of an alkali (like NaOH), the acid is instantly neutralized to form a <strong>carboxylate salt</strong> (e.g., \( CH_3COO^-Na^+ \)).</p>
+                        </div>
+                    </div>
+
+                    <!-- Misconception 3 -->
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="md:w-1/2 bg-red-50 p-5 rounded-xl border border-red-200">
+                            <h3 class="text-red-700 font-bold flex items-center mb-2">
+                                <i class="fa-solid fa-xmark text-xl mr-2"></i> Student Error
+                            </h3>
+                            <p class="text-gray-700">"Adding dilute acid/alkali at room temperature is enough to hydrolyze the amide."</p>
+                        </div>
+                        <div class="md:w-1/2 bg-green-50 p-5 rounded-xl border border-green-200 relative">
+                            <div class="hidden md:block absolute left-[-1.5rem] top-1/2 transform -translate-y-1/2 text-3xl text-gray-300">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                            <h3 class="text-green-700 font-bold flex items-center mb-2">
+                                <i class="fa-solid fa-check text-xl mr-2"></i> Correct Concept
+                            </h3>
+                            <p class="text-gray-700">The C-N bond is very strong due to resonance stabilization. The reaction requires significant activation energy. <strong>Prolonged heating under reflux</strong> is absolutely necessary.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Summary Tab -->
+            <section id="summary" class="tab-content">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-chem-100 pb-2">Quick Revision Summary</h2>
+                
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <ul class="space-y-4 text-lg text-gray-700">
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-bolt text-chem-500 mt-1 mr-3"></i>
+                            <div><strong>Reaction Type:</strong> Hydrolysis (cleavage of bonds by addition of water/reagents).</div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-fire text-chem-500 mt-1 mr-3"></i>
+                            <div><strong>Condition Required:</strong> Heat under reflux (due to strong C-N bond).</div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-flask text-chem-500 mt-1 mr-3"></i>
+                            <div>
+                                <strong>Acidic Pathway:</strong> 
+                                <br><span class="text-sm">Amide + \(H_2O\) + \(H^+\) \(\rightarrow\) Carboxylic Acid + Ammonium Salt (\(NH_4^+\)).</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-flask text-purple-500 mt-1 mr-3"></i>
+                            <div>
+                                <strong>Alkaline Pathway:</strong> 
+                                <br><span class="text-sm">Amide + \(OH^-\) \(\rightarrow\) Carboxylate Salt + Ammonia Gas (\(NH_3\)).</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-vial text-chem-500 mt-1 mr-3"></i>
+                            <div><strong>Distinguishing Test:</strong> Heating with NaOH(aq). Only amides (and ammonium salts) release \(NH_3\) gas that turns moist red litmus blue.</div>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 7. Consolidation Quiz Tab -->
+            <section id="quiz" class="tab-content">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-chem-100 pb-2">Consolidation Quiz</h2>
+                <p class="text-gray-600 mb-6">Test your understanding of the acidic and alkaline hydrolysis of amides.</p>
+
+                <div id="quiz-container" class="space-y-8">
+                    <!-- Questions will be injected here by JS -->
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button onclick="resetQuiz()" class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-bold transition-colors">Retake Quiz</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // --- 1. Tab Navigation Logic ---
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active-tab', 'ring-2', 'ring-chem-500', 'bg-chem-50');
+                if(btn.dataset.target === tabId) {
+                    btn.classList.add('active-tab', 'ring-2', 'ring-chem-500', 'bg-chem-50');
+                }
+            });
+
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+
+            if (typeof MathJax !== 'undefined') {
+                MathJax.typesetPromise([document.getElementById(tabId)]);
+            }
+
+            if(tabId === 'virtuallab') {
+                if(camera && renderer) {
+                    const container = document.getElementById('canvas-container');
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                }
+            }
+        }
+
+        // --- 2. Exam Challenge Reveal Logic ---
+        function toggleAnswer(id) {
+            const el = document.getElementById(id);
+            if(el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                el.classList.add('animate-[fadeIn_0.5s_ease-in-out]');
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+
+        // --- 3. Quiz Logic ---
+        const quizQuestions = [
+            {
+                q: "What are the organic and inorganic products of heating ethanamide with dilute hydrochloric acid under reflux?",
+                options: [
+                    "Ethanoic acid and ammonia gas",
+                    "Ethanoic acid and ammonium chloride",
+                    "Sodium ethanoate and ammonia gas",
+                    "Ethanol and nitrogen gas"
+                ],
+                answer: 1,
+                explanation: "Acidic hydrolysis yields the carboxylic acid (ethanoic acid) and the ammonium salt (ammonium chloride, as NH₃ reacts with HCl)."
+            },
+            {
+                q: "Which reagent is used to confirm the presence of an amide group by releasing a pungent gas upon heating?",
+                options: [
+                    "Dilute sulfuric acid",
+                    "Acidified potassium dichromate",
+                    "Dilute sodium hydroxide",
+                    "Bromine water"
+                ],
+                answer: 2,
+                explanation: "Heating with dilute NaOH(aq) causes alkaline hydrolysis, releasing ammonia gas (pungent smell, turns red litmus blue)."
+            },
+            {
+                q: "Why is prolonged heating under reflux necessary for amide hydrolysis?",
+                options: [
+                    "To evaporate the water solvent",
+                    "Because amides are highly volatile",
+                    "Because the C-N bond is very strong due to partial double bond character",
+                    "To prevent the product from condensing back into an amide"
+                ],
+                answer: 2,
+                explanation: "The lone pair on nitrogen delocalizes into the carbonyl pi system, giving the C-N bond partial double bond character, making it unusually strong and resistant to cleavage."
+            }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            quizQuestions.forEach((item, index) => {
+                let optionsHTML = '';
+                item.options.forEach((opt, optIdx) => {
+                    optionsHTML += `
+                        <div class="option-row mb-2">
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors w-full" 
+                                   id="label-${index}-${optIdx}">
+                                <input type="radio" name="q${index}" value="${optIdx}" class="mr-3 w-4 h-4 text-chem-600 focus:ring-chem-500" onchange="checkAnswer(${index}, ${optIdx})">
+                                <span class="text-gray-700">${opt}</span>
+                            </label>
+                        </div>
+                    `;
+                });
+
+                const qHTML = `
+                    <div class="quiz-card bg-white p-6 rounded-xl border border-gray-200 shadow-sm" id="qcard-${index}">
+                        <h3 class="font-bold text-lg text-gray-800 mb-4">Q${index + 1}: ${item.q}</h3>
+                        ${optionsHTML}
+                        <div id="feedback-${index}" class="hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
+                    </div>
+                `;
+                container.innerHTML += qHTML;
+            });
+            if (typeof MathJax !== 'undefined') MathJax.typesetPromise();
+        }
+
+        function checkAnswer(qIndex, selectedOption) {
+            const question = quizQuestions[qIndex];
+            const feedbackEl = document.getElementById(`feedback-${qIndex}`);
+            
+            document.querySelectorAll(`input[name="q${qIndex}"]`).forEach(input => {
+                input.disabled = true;
+            });
+
+            const chosenLabel = document.getElementById(`label-${qIndex}-${selectedOption}`);
+            const correctLabel = document.getElementById(`label-${qIndex}-${question.answer}`);
+
+            if (selectedOption === question.answer) {
+                chosenLabel.classList.remove('border-gray-200', 'hover:bg-gray-50');
+                chosenLabel.classList.add('border-green-500', 'bg-green-50');
+                feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-green-600 mr-2 text-lg"></i> <span class="text-green-800">Correct! ${question.explanation}</span>`;
+                feedbackEl.classList.remove('hidden', 'bg-red-50');
+                feedbackEl.classList.add('bg-green-100', 'border', 'border-green-300');
+            } else {
+                chosenLabel.classList.remove('border-gray-200', 'hover:bg-gray-50');
+                chosenLabel.classList.add('border-red-500', 'bg-red-50');
+                
+                correctLabel.classList.remove('border-gray-200');
+                correctLabel.classList.add('border-green-500', 'bg-green-50', 'ring-2', 'ring-green-200');
+
+                feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-600 mr-2 text-lg"></i> <span class="text-red-800">Incorrect. The correct answer was option ${question.answer + 1}. <br><strong>Explanation:</strong> ${question.explanation}</span>`;
+                feedbackEl.classList.remove('hidden', 'bg-green-100');
+                feedbackEl.classList.add('bg-red-100', 'border', 'border-red-300');
+            }
+            // Trigger MathJax re-render for the feedback element
+            if (typeof MathJax !== 'undefined') MathJax.typesetPromise([feedbackEl]);
+        }
+
+        function resetQuiz() {
+            renderQuiz();
+        }
+        renderQuiz();
+
+
+        // --- 4. Three.js Virtual Lab Logic ---
+        let scene, camera, renderer;
+        let mainMolecule, leavingMolecule, incomingParts;
+        let cBondToBreak;
+        
+        let simState = 'idle'; // idle, animating_step1, paused_step1, animating_step2
+        let simType = '';
+        let animProgress = 0;
+        let animData = {};
+
+        const MAT_C = new THREE.MeshPhongMaterial({ color: 0x888888 }); // Grey
+        const MAT_O = new THREE.MeshPhongMaterial({ color: 0xff3333 }); // Red
+        const MAT_N = new THREE.MeshPhongMaterial({ color: 0x3366ff }); // Blue
+        const MAT_H = new THREE.MeshPhongMaterial({ color: 0xffffff }); // White
+        const MAT_BOND = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1e293b);
+
+            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+            camera.position.z = 7;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(5, 5, 5);
+            scene.add(dirLight);
+            
+            const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+            dirLight2.position.set(-5, -5, 5);
+            scene.add(dirLight2);
+
+            buildEthanamide();
+
+            window.addEventListener('resize', () => {
+                if(document.getElementById('virtuallab').classList.contains('active')) {
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                }
+            });
+
+            animateThreeJS();
+        }
+
+        function createAtom(material, radius, x, y, z) {
+            const geo = new THREE.SphereGeometry(radius, 32, 32);
+            const mesh = new THREE.Mesh(geo, material);
+            mesh.position.set(x, y, z);
+            return mesh;
+        }
+
+        function createBond(pos1, pos2) {
+            const dist = pos1.distanceTo(pos2);
+            const geo = new THREE.CylinderGeometry(0.08, 0.08, dist, 8);
+            const mesh = new THREE.Mesh(geo, MAT_BOND);
+            
+            const midPoint = new THREE.Vector3().addVectors(pos1, pos2).multiplyScalar(0.5);
+            mesh.position.copy(midPoint);
+            mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3().subVectors(pos2, pos1).normalize());
+            
+            return mesh;
+        }
+
+        function buildEthanamide() {
+            while(scene.children.length > 0) scene.remove(scene.children[0]); 
+            
+            scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+            const dl1 = new THREE.DirectionalLight(0xffffff, 0.8); dl1.position.set(5,5,5); scene.add(dl1);
+            const dl2 = new THREE.DirectionalLight(0xffffff, 0.4); dl2.position.set(-5,-5,5); scene.add(dl2);
+
+            mainMolecule = new THREE.Group();
+            leavingMolecule = new THREE.Group();
+            incomingParts = new THREE.Group();
+            scene.add(mainMolecule);
+            scene.add(leavingMolecule);
+            scene.add(incomingParts);
+
+            // Carbonyl C (sp2 hybridized - trigonal planar)
+            const pC1 = new THREE.Vector3(0, 0, 0);       
+            const pO  = new THREE.Vector3(0, 1.2, 0);     // C=O bond
+            const pC2 = new THREE.Vector3(-1.3, -0.7, 0); // CH3 group
+            const pN  = new THREE.Vector3(1.3, -0.7, 0);  // N position (will form trigonal pyramidal)
+            
+            // CH3 hydrogens (tetrahedral around C)
+            const pH_m1 = new THREE.Vector3(-1.3, -1.7, 0);
+            const pH_m2 = new THREE.Vector3(-1.9, -0.3, 0.8);
+            const pH_m3 = new THREE.Vector3(-1.9, -0.3, -0.8);
+
+            // NH2 hydrogens (trigonal pyramidal geometry - ~107° bond angles)
+            // Positioned to show pyramidal shape with N at apex
+            const pH_n1 = new THREE.Vector3(2.0, -0.3, 0.6);  // H above plane
+            const pH_n2 = new THREE.Vector3(2.0, -0.3, -0.6); // H above plane
+
+            const aC1 = createAtom(MAT_C, 0.4, pC1.x, pC1.y, pC1.z);
+            const aO  = createAtom(MAT_O, 0.35, pO.x, pO.y, pO.z);
+            const aC2 = createAtom(MAT_C, 0.4, pC2.x, pC2.y, pC2.z);
+            const aN  = createAtom(MAT_N, 0.38, 0, 0, 0); 
+            
+            const aHm1 = createAtom(MAT_H, 0.2, pH_m1.x, pH_m1.y, pH_m1.z);
+            const aHm2 = createAtom(MAT_H, 0.2, pH_m2.x, pH_m2.y, pH_m2.z);
+            const aHm3 = createAtom(MAT_H, 0.2, pH_m3.x, pH_m3.y, pH_m3.z);
+            
+            const aHn1 = createAtom(MAT_H, 0.2, pH_n1.x - pN.x, pH_n1.y - pN.y, pH_n1.z - pN.z);
+            const aHn2 = createAtom(MAT_H, 0.2, pH_n2.x - pN.x, pH_n2.y - pN.y, pH_n2.z - pN.z);
+
+            mainMolecule.add(aC1, aO, aC2, aHm1, aHm2, aHm3);
+            mainMolecule.add(createBond(pC1, pO)); 
+            mainMolecule.add(createBond(pC1, pC2));
+            mainMolecule.add(createBond(pC2, pH_m1));
+            mainMolecule.add(createBond(pC2, pH_m2));
+            mainMolecule.add(createBond(pC2, pH_m3));
+
+            cBondToBreak = createBond(pC1, pN);
+            mainMolecule.add(cBondToBreak);
+
+            leavingMolecule.position.copy(pN);
+            leavingMolecule.add(aN);
+            leavingMolecule.add(aHn1);
+            leavingMolecule.add(aHn2);
+            leavingMolecule.add(createBond(new THREE.Vector3(0,0,0), new THREE.Vector3(aHn1.position.x, aHn1.position.y, aHn1.position.z)));
+            leavingMolecule.add(createBond(new THREE.Vector3(0,0,0), new THREE.Vector3(aHn2.position.x, aHn2.position.y, aHn2.position.z)));
+
+            mainMolecule.position.x = -0.5;
+            leavingMolecule.position.x += -0.5;
+            
+            scene.rotation.x = 0.2;
+            scene.rotation.y = -0.2;
+        }
+
+        // Common Step 1: Intermediate Formation (H2O coming in)
+        function createCommonWater() {
+            incomingParts.clear();
+
+            // OH group to form Carboxylic Acid (bent geometry around O, ~104° C-O-H angle)
+            const ohGroup = new THREE.Group();
+            const oAtom = createAtom(MAT_O, 0.35, 0, 0, 0);
+            // H positioned to create proper bent geometry with C-O-H angle ~104°
+            const hAtom = createAtom(MAT_H, 0.2, 0.4, -0.65, 0.3);
+            const bond = createBond(new THREE.Vector3(0,0,0), new THREE.Vector3(0.4,-0.65,0.3));
+            
+            // Generate the missing C-O single bond connecting to the main molecule's Carbonyl C
+            // Vector scales dynamically as the group approaches the target position.
+            const bondToC = createBond(new THREE.Vector3(0,0,0), new THREE.Vector3(-1.2, 0.7, 0));
+            
+            ohGroup.add(oAtom, hAtom, bond, bondToC);
+            
+            ohGroup.position.set(1, 2, 2); 
+            ohGroup.scale.set(0.01, 0.01, 0.01);
+            incomingParts.add(ohGroup);
+
+            // 1 H to form Ammonia (NH3) - completes trigonal pyramidal geometry
+            // Third H positioned below the N-H2 plane to maintain ~107° bond angles
+            const hForAmine = new THREE.Group();
+            const h3 = createAtom(MAT_H, 0.2, 0, -0.8, 0); // Below the nitrogen plane
+            const bond3 = createBond(new THREE.Vector3(0,0,0), new THREE.Vector3(0, -0.8, 0));
+            hForAmine.add(h3, bond3);
+            
+            hForAmine.position.set(3, 2, 2);
+            hForAmine.scale.set(0.01, 0.01, 0.01);
+            incomingParts.add(hForAmine);
+
+            return { ohGroup, ohHAtom: hAtom, ohBond: bond, hForAmine };
+        }
+
+        // Step 2 Acidic: Extra H+ for Ammonium (forms tetrahedral NH4+, 109.5° bond angles)
+        function createAcidReagent() {
+            const hPlusGroup = new THREE.Group();
+            // Fourth H positioned to complete tetrahedral geometry
+            // Positioned opposite to the center of the three existing H atoms
+            const h4 = createAtom(MAT_H, 0.2, -0.7, 0.3, 0);
+            const bond4 = createBond(new THREE.Vector3(0,0,0), new THREE.Vector3(-0.7, 0.3, 0));
+            hPlusGroup.add(h4, bond4);
+
+            hPlusGroup.position.set(4, 2, 2);
+            hPlusGroup.scale.set(0.01, 0.01, 0.01);
+            incomingParts.add(hPlusGroup);
+
+            return hPlusGroup;
+        }
+
+        // Step 2 Alkaline: OH- to deprotonate Carboxylic Acid (bent geometry around O)
+        function createAlkaliReagent() {
+            const ohMinusGroup = new THREE.Group();
+            const oAtom = createAtom(MAT_O, 0.35, 0, 0, 0);
+            const h1Atom = createAtom(MAT_H, 0.2, 0.65, 0.5, 0); // Bent geometry ~104°
+            const bond1 = createBond(new THREE.Vector3(0,0,0), new THREE.Vector3(0.65, 0.5, 0));
+            
+            // Second H (from COOH) forms H2O - initially hidden, bent geometry maintained
+            const h2Atom = createAtom(MAT_H, 0.2, -0.65, 0.5, 0);
+            const bond2 = createBond(new THREE.Vector3(0,0,0), new THREE.Vector3(-0.65, 0.5, 0));
+            h2Atom.visible = false;
+            bond2.visible = false;
+
+            ohMinusGroup.add(oAtom, h1Atom, bond1, h2Atom, bond2);
+            ohMinusGroup.position.set(2, 3, 0); 
+            ohMinusGroup.scale.set(0.01, 0.01, 0.01);
+            incomingParts.add(ohMinusGroup);
+
+            return { group: ohMinusGroup, h2: h2Atom, bond2: bond2 };
+        }
+
+        function startSimulation(type) {
+            if(simState === 'animating_step1' || simState === 'animating_step2') return;
+            resetSimulation(true); 
+            
+            animProgress = 0;
+            simType = type;
+            simState = 'animating_step1';
+            
+            const feedback = document.getElementById('sim-feedback');
+            feedback.classList.remove('hidden');
+            feedback.innerHTML = '';
+            document.getElementById('next-step-btn').classList.add('hidden');
+            
+            animData = {
+                ...createCommonWater(),
+                acidReagent: type === 'acid' ? createAcidReagent() : null,
+                alkaliReagent: type === 'alkali' ? createAlkaliReagent() : null,
+                step1Done: false,
+                hTransferred: false
+            };
+
+            updateFeedback(1, type);
+        }
+
+        function proceedToStep2() {
+            simState = 'animating_step2';
+            animProgress = 1.5; // Starts phase 2 from this marker
+            document.getElementById('next-step-btn').classList.add('hidden');
+            updateFeedback(2, simType);
+        }
+
+        function updateFeedback(step, type) {
+            const feedback = document.getElementById('sim-feedback');
+            
+            // Note: Double backslashes (\\) are necessary in template strings so MathJax receives correctly escaped characters like \( \)
+            if (step === 1) {
+                feedback.innerHTML = `<div class="mb-2"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold text-xs">STEP 1</span></div><strong>Intermediate Formation (Hydrolysis):</strong><br>Water cleaves the C-N bond.<br>\\(\\rightarrow\\) <strong>Carboxylic Acid</strong> + <strong>Ammonia (\\(NH_3\\))</strong>.`;
+            } else if (step === 2 && type === 'acid') {
+                feedback.innerHTML += `<hr class="my-3 border-chem-200"><div class="mb-2"><span class="bg-red-100 text-red-800 px-2 py-1 rounded font-bold text-xs">STEP 2</span></div><strong>Acidic Medium (\\(H^+\\)):</strong><br>Ammonia acts as a base and accepts an \\(H^+\\).<br>\\(\\rightarrow\\) <strong>Ammonium Ion (\\(NH_4^+\\))</strong>.`;
+            } else if (step === 2 && type === 'alkali') {
+                feedback.innerHTML += `<hr class="my-3 border-chem-200"><div class="mb-2"><span class="bg-purple-100 text-purple-800 px-2 py-1 rounded font-bold text-xs">STEP 2</span></div><strong>Alkaline Medium (\\(OH^-\\)):</strong><br>Carboxylic acid donates its \\(H^+\\) to \\(OH^-\\).<br>\\(\\rightarrow\\) <strong>Carboxylate Ion</strong> + \\(H_2O\\).<br>Ammonia gas escapes.`;
+            }
+            if (typeof MathJax !== 'undefined') MathJax.typesetPromise([feedback]);
+        }
+
+        function resetSimulation(silent=false) {
+            simState = 'idle';
+            animProgress = 0;
+            buildEthanamide();
+            document.getElementById('next-step-btn').classList.add('hidden');
+            if(!silent) {
+                document.getElementById('sim-feedback').classList.add('hidden');
+            }
+        }
+
+        function animateThreeJS() {
+            requestAnimationFrame(animateThreeJS);
+
+            if(simState === 'idle' || simState === 'paused_step1') {
+                scene.rotation.y += 0.005;
+            }
+
+            if(simState === 'animating_step1') {
+                animProgress += 0.008; 
+                let p = Math.min(animProgress, 1.0); // Clamp to 1.0
+                let easeP = 1 - Math.pow(1 - p, 3); // Cubic ease out
+                
+                if(p > 0.1 && cBondToBreak.visible) cBondToBreak.visible = false;
+                
+                const targetX = 1.3 - 0.5 + 3.0; 
+                leavingMolecule.position.x = THREE.MathUtils.lerp(1.3 - 0.5, targetX, easeP);
+                
+                if(animData.ohGroup) {
+                    animData.ohGroup.scale.setScalar(THREE.MathUtils.lerp(0.01, 1, easeP));
+                    animData.ohGroup.position.x = THREE.MathUtils.lerp(1, 0.7, easeP);
+                    animData.ohGroup.position.y = THREE.MathUtils.lerp(2, -0.7, easeP);
+                    animData.ohGroup.position.z = THREE.MathUtils.lerp(2, 0, easeP);
+                }
+
+                if(animData.hForAmine) {
+                    animData.hForAmine.scale.setScalar(THREE.MathUtils.lerp(0.01, 1, easeP));
+                    animData.hForAmine.position.copy(leavingMolecule.position);
+                }
+
+                if(animProgress >= 1.0 && !animData.step1Done) {
+                    animData.step1Done = true;
+                    simState = 'paused_step1';
+                    document.getElementById('next-step-btn').classList.remove('hidden');
+                }
+            } 
+            else if(simState === 'animating_step2') {
+                animProgress += 0.008;
+                
+                if(animProgress <= 2.5) {
+                    let p = Math.min(animProgress - 1.5, 1.0); 
+                    let easeP = 1 - Math.pow(1 - p, 3);
+
+                    if(simType === 'acid' && animData.acidReagent) {
+                        // Scale up quickly, then translate into position to show it flying in and attaching to ammonia
+                        animData.acidReagent.scale.setScalar(THREE.MathUtils.lerp(0.01, 1, Math.min(easeP * 2, 1.0)));
+                        animData.acidReagent.position.x = THREE.MathUtils.lerp(leavingMolecule.position.x + 2, leavingMolecule.position.x, easeP);
+                        animData.acidReagent.position.y = THREE.MathUtils.lerp(leavingMolecule.position.y + 2, leavingMolecule.position.y, easeP);
+                        animData.acidReagent.position.z = THREE.MathUtils.lerp(leavingMolecule.position.z + 1.5, leavingMolecule.position.z, easeP);
+                    } 
+                    else if(simType === 'alkali' && animData.alkaliReagent) {
+                        animData.alkaliReagent.group.scale.setScalar(THREE.MathUtils.lerp(0.01, 1, easeP));
+                        
+                        // OH- swoops in to take the H from Carboxylic Acid
+                        animData.alkaliReagent.group.position.x = THREE.MathUtils.lerp(2, 1.6, easeP);
+                        animData.alkaliReagent.group.position.y = THREE.MathUtils.lerp(3, -1.3, easeP);
+                        animData.alkaliReagent.group.position.z = THREE.MathUtils.lerp(1, 0, easeP);
+
+                        // H Transfer moment
+                        if(p > 0.8 && !animData.hTransferred) {
+                            animData.hTransferred = true;
+                            animData.ohHAtom.visible = false;
+                            animData.ohBond.visible = false;
+                            animData.alkaliReagent.h2.visible = true;
+                            animData.alkaliReagent.bond2.visible = true;
+                        }
+
+                        // Ammonia slowly starts drifting away
+                        leavingMolecule.position.y += 0.005;
+                        animData.hForAmine.position.y += 0.005;
+                    }
+                }
+                // Phase 4: Final settling & drifting (> 2.5)
+                else {
+                    if(simType === 'alkali') {
+                        // Ammonia drifts up rapidly
+                        leavingMolecule.position.y += 0.02;
+                        animData.hForAmine.position.y += 0.02;
+
+                        // Formed Water drifts away slightly
+                        animData.alkaliReagent.group.position.x += 0.01;
+                        animData.alkaliReagent.group.position.y -= 0.01;
+                    }
+                    scene.rotation.y += 0.005;
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        window.onload = () => {
+            initThreeJS();
+        };
+
+    </script>
+</body>
+</html>
